@@ -1,5 +1,6 @@
 import time
 import pickle
+import random
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -14,7 +15,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.alert import Alert
 import undetected_chromedriver as uc
 from xpath_store import LOGIN_LINK_XPATH, EMAIL_FIELD_XPATH, PASSWORD_FIELD_XPATH, LOGIN_BUTTON_XPATH,SEND_CODE_BUTTON_XPATH
-from credentials import email, password
+from credentials import email, password,like_probability,pass_probability,swipes
 driver = uc.Chrome(use_subprocess=True)
 
 
@@ -89,6 +90,33 @@ except Exception as e:
 
 with open('cookies.pkl', 'wb') as cookies_file:
     pickle.dump(driver.get_cookies(), cookies_file)
+
+
+
+
+
+
+for _ in range(swipes):  # You can adjust the number of profiles to swipe
+    try:
+        # Randomly choose to "Like" or "Pass" based on probabilities
+        action = random.choices(["like", "pass"], weights=[like_probability, pass_probability])[0]
+        if action == "like":
+            # Find the "Like" button by aria-label
+            button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@aria-label="Like and view the next profile"]'))
+            )
+        else:
+            # Find the "Pass" button by aria-label
+            button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@aria-label="Pass and view the next profile"]'))
+            )
+        button.click()
+    except Exception as e:
+        print("Failed to click button:", str(e))
+
+    # Add a random delay between 2 and 5 seconds
+    random_delay = random.uniform(2, 5)
+    time.sleep(random_delay)
 
 # Wait for the login to complete (you may need to wait for a specific element on the logged-in page)
 
